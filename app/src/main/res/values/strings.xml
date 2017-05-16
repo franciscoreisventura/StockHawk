@@ -32,6 +32,8 @@
 
     <string name="toast_stock_added_no_connectivity" translatable="true">Symbol %s added. Will refresh when network available.</string>
     <string name="toast_no_connectivity" translatable="true">Will refresh when network available.</string>
+    <string name="toast_stock_not_found" translatable="true">Symbol %s could not be found.</string>
+    <string name="toast_history_chart_failure" translatable="true">Error plotting historical data for stock %s.</string>
 
     <string name="EXTRA_STOCK_SYMBOL" translatable="false">com.udacity.stockhawk.extra.EXTRA_STOCK_SYMBOL</string>
     <string name="EXTRA_STOCK_HISTORY" translatable="false">com.udacity.stockhawk.extra.EXTRA_STOCK_HISTORY</string>
