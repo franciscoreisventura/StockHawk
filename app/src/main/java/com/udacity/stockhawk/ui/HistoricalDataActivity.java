@@ -32,7 +32,7 @@ public class HistoricalDataActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         String symbol = getIntent().getStringExtra(getString(R.string.EXTRA_STOCK_SYMBOL));
-        String history = getIntent().getStringExtra(getString(R.string.EXTRA_STOCK_HISTORY))
+        String history = getIntent().getStringExtra(getString(R.string.EXTRA_STOCK_HISTORY));
         if(symbol != null && history != null) {
             LineDataSet dataSet = new LineDataSet(getHistoricalData(history), symbol);
             LineData lineData = new LineData(dataSet);
