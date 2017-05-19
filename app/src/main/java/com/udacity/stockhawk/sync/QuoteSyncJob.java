@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.udacity.stockhawk.R;
@@ -42,7 +44,7 @@ public final class QuoteSyncJob {
     private QuoteSyncJob() {
     }
 
-    static void getQuotes(Context context) {
+    static void getQuotes(final Context context) {
 
         Timber.d("Running sync job");
 
@@ -51,7 +53,6 @@ public final class QuoteSyncJob {
         from.add(Calendar.YEAR, -YEARS_OF_HISTORY);
 
         try {
-
             Set<String> stockPref = PrefUtils.getStocks(context);
             Set<String> stockCopy = new HashSet<>();
             stockCopy.addAll(stockPref);
@@ -71,7 +72,7 @@ public final class QuoteSyncJob {
             ArrayList<ContentValues> quoteCVs = new ArrayList<>();
 
             while (iterator.hasNext()) {
-                String symbol = iterator.next();
+                final String symbol = iterator.next();
 
                 Stock stock = quotes.get(symbol);
                 StockQuote quote = stock.getQuote();
@@ -83,16 +84,16 @@ public final class QuoteSyncJob {
 
                     // WARNING! Don't request historical data for a stock that doesn't exist!
                     // The request will hang forever X_x
-                    List<HistoricalQuote> history = stock.getHistory(from, to, Interval.WEEKLY);
-
-                    StringBuilder historyBuilder = new StringBuilder();
-
-                    for (HistoricalQuote it : history) {
-                        historyBuilder.append(it.getDate().getTimeInMillis());
-                        historyBuilder.append(", ");
-                        historyBuilder.append(it.getClose());
-                        historyBuilder.append("\n");
-                    }
+//                    List<HistoricalQuote> history = stock.getHistory(from, to, Interval.WEEKLY);
+//
+//                    StringBuilder historyBuilder = new StringBuilder();
+//
+//                    for (HistoricalQuote it : history) {
+//                        historyBuilder.append(it.getDate().getTimeInMillis());
+//                        historyBuilder.append(", ");
+//                        historyBuilder.append(it.getClose());
+//                        historyBuilder.append("\n");
+//                    }
 
                     ContentValues quoteCV = new ContentValues();
                     quoteCV.put(Contract.Quote.COLUMN_SYMBOL, symbol);
@@ -100,12 +101,20 @@ public final class QuoteSyncJob {
                     quoteCV.put(Contract.Quote.COLUMN_PERCENTAGE_CHANGE, percentChange);
                     quoteCV.put(Contract.Quote.COLUMN_ABSOLUTE_CHANGE, change);
 
-
-                    quoteCV.put(Contract.Quote.COLUMN_HISTORY, historyBuilder.toString());
+                    //TODO while endpoint is down
+                    quoteCV.put(Contract.Quote.COLUMN_HISTORY, "1, 1234");
+//                    quoteCV.put(Contract.Quote.COLUMN_HISTORY, historyBuilder.toString());
 
                     quoteCVs.add(quoteCV);
                 } else {
-                    Toast.makeText(context, context.getString(R.string.toast_stock_not_found, symbol), Toast.LENGTH_LONG).show();
+                    PrefUtils.removeStock(context, symbol);
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, context.getString(R.string.toast_stock_not_found, symbol), Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
             }
 
