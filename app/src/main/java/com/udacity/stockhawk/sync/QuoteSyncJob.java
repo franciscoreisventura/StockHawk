@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
+import com.udacity.stockhawk.mock.MockUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import yahoofinance.quotes.stock.StockQuote;
 public final class QuoteSyncJob {
 
     private static final int ONE_OFF_ID = 2;
-    private static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
+    public static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
     private static final int PERIOD = 300000;
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
@@ -82,18 +83,22 @@ public final class QuoteSyncJob {
                     float change = quote.getChange().floatValue();
                     float percentChange = quote.getChangeInPercent().floatValue();
 
-                    // WARNING! Don't request historical data for a stock that doesn't exist!
-                    // The request will hang forever X_x
+//                     WARNING! Don't request historical data for a stock that doesn't exist!
+//                     The request will hang forever X_x
 //                    List<HistoricalQuote> history = stock.getHistory(from, to, Interval.WEEKLY);
-//
-//                    StringBuilder historyBuilder = new StringBuilder();
-//
-//                    for (HistoricalQuote it : history) {
-//                        historyBuilder.append(it.getDate().getTimeInMillis());
-//                        historyBuilder.append(", ");
-//                        historyBuilder.append(it.getClose());
-//                        historyBuilder.append("\n");
-//                    }
+                    // Note for reviewer
+                    // Due to problems with Yahoo API we have commented the line above
+                    // and included this one to fetch the history from MockUtils.
+                    // This should be enough to evaluate and review while the API is down.
+                    List<HistoricalQuote> history = MockUtils.getHistory();
+                    StringBuilder historyBuilder = new StringBuilder();
+
+                    for (HistoricalQuote it : history) {
+                        historyBuilder.append(it.getDate().getTimeInMillis());
+                        historyBuilder.append(", ");
+                        historyBuilder.append(it.getClose());
+                        historyBuilder.append("\n");
+                    }
 
                     ContentValues quoteCV = new ContentValues();
                     quoteCV.put(Contract.Quote.COLUMN_SYMBOL, symbol);
@@ -101,9 +106,7 @@ public final class QuoteSyncJob {
                     quoteCV.put(Contract.Quote.COLUMN_PERCENTAGE_CHANGE, percentChange);
                     quoteCV.put(Contract.Quote.COLUMN_ABSOLUTE_CHANGE, change);
 
-                    //TODO while endpoint is down
-                    quoteCV.put(Contract.Quote.COLUMN_HISTORY, "1, 1234");
-//                    quoteCV.put(Contract.Quote.COLUMN_HISTORY, historyBuilder.toString());
+                    quoteCV.put(Contract.Quote.COLUMN_HISTORY, historyBuilder.toString());
 
                     quoteCVs.add(quoteCV);
                 } else {
