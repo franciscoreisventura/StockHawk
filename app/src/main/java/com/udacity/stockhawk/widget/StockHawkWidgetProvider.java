@@ -1,6 +1,7 @@
 package com.udacity.stockhawk.widget;
 
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
@@ -11,6 +12,7 @@ import android.widget.RemoteViews;
 
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
+import com.udacity.stockhawk.ui.HistoricalDataActivity;
 import com.udacity.stockhawk.ui.MainActivity;
 
 /**
@@ -24,9 +26,11 @@ public class StockHawkWidgetProvider extends AppWidgetProvider {
             RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget_stock_hawk);
             rv.setRemoteAdapter(R.id.widget_listview, new Intent(context, StockHawkWidgetService.class));
             rv.setEmptyView(R.id.widget_listview, R.id.empty_view);
-            Intent mainIntent = new Intent(context, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, mainIntent, 0);
-            rv.setOnClickPendingIntent(R.id.widget_listview, pendingIntent);
+            Intent clickIntentTemplate = new Intent(context, HistoricalDataActivity.class);
+            PendingIntent pendingIntentTemplate = TaskStackBuilder.create(context)
+                    .addNextIntentWithParentStack(clickIntentTemplate)
+                    .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            rv.setPendingIntentTemplate(R.id.widget_listview, pendingIntentTemplate);
             appWidgetManager.updateAppWidget(appWidgetId, rv);
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds);
