@@ -1,11 +1,8 @@
 package com.udacity.stockhawk.widget;
 
-import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Binder;
 import android.widget.AdapterView;
 import android.widget.RemoteViews;
@@ -13,10 +10,6 @@ import android.widget.RemoteViewsService;
 
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
-import com.udacity.stockhawk.data.StockProvider;
-import com.udacity.stockhawk.ui.MainActivity;
-
-import timber.log.Timber;
 
 /**
  * Created by fraven on 21-05-2017.
@@ -26,17 +19,12 @@ public class StockHawkWidgetService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return new StockHawkWidgetViewsFactory(getApplicationContext());
+        return new StockHawkWidgetViewsFactory();
     }
 
     class StockHawkWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         private Cursor cursor;
-        private Context context;
-
-        public StockHawkWidgetViewsFactory(Context context){
-            this.context = context;
-        }
 
         @Override
         public void onCreate() {
